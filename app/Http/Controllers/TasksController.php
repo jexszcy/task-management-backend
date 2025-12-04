@@ -39,6 +39,10 @@ class TasksController extends Controller
 
     public function complete(Task $task, Request $request){
         if($request->isMethod("patch")){
+            // Ensure the task belongs to the authenticated user
+            if ($task->user_id !== $request->user()->id) {
+                abort(403, "Unauthorized action.");
+            }
             $data = $request->validate([
                 'is_complete' => ['required', "boolean"],
             ]);
@@ -63,6 +67,11 @@ class TasksController extends Controller
 
     public function delete(Task $task, Request $request){
         if($request->isMethod("delete")){
+            // Ensure the task belongs to the authenticated user
+            if ($task->user_id !== $request->user()->id) {
+                abort(403, "Unauthorized action.");
+            }
+
             try {
                 DB::beginTransaction();
                 $task->delete();
